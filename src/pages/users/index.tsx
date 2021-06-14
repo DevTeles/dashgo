@@ -1,46 +1,20 @@
-import { useEffect } from 'react'
 import Link from 'next/link'
 import { Box, Text, Button, Checkbox, Flex, Heading, Icon, Table, Tbody, Td, Th, Thead, Tr, useBreakpointValue } from '@chakra-ui/react'
 import { RiAddLine } from 'react-icons/ri'
-import { useQuery } from 'react-query';
+import { Spinner } from '@chakra-ui/react';
 
 import { SideBar } from '../../components/SideBar'
 import { Header } from '../../components/Header'
 import { Pagination } from '../../components/Pagination'
-import { Spinner } from '@chakra-ui/react';
-import { api } from '../../services/api';
+import { useUsers } from '../../services/hooks/useUsers';
 
 export default function UserList() {
-  const { data, isLoading, error, isFetched } = useQuery('users', async () => {
-    const { data } = await api.get('http://localhost:3000/api/users')    
-
-    const users = data.map(user => {
-      return {
-        id: user.id,
-        name: user.name, 
-        email: user.email,
-        createdAt: new Date(user.createdAt).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric'
-        })
-      }
-    })
-    return users;
-  }, {
-    staleTime: 1000 * 5  // 5 seconds
-  })
+  const { data, isLoading, isFetched, error  } = useUsers()
 
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true
   })
-
-  useEffect(() => {
-    fetch('http://localhost:3000/api/users')
-       .then(response => response.json())
-       .then(data => console.log(data))
-  }, [])
 
   return (
     <Box>
@@ -55,7 +29,7 @@ export default function UserList() {
             <Heading size="lg" fontWeight="normal">
               Usuários
 
-              { !isLoading && isFetched && <Spinner size="sm" color="gray.500" ml="4" />}
+              { isLoading && isFetched && <Spinner size="sm" color="gray.500" ml="4" />}
             </Heading>            
 
             <Link href="/users/create" passHref>
